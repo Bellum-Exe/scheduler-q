@@ -85,6 +85,7 @@ def main():
     git("add", "queue")
     git("commit", "-q", "-m", "enqueue")
     git("push", "-q")
+    subprocess.run([GH, "workflow", "run", "publish.yml"], cwd=HERE, check=False, capture_output=True)
     print(f"IN CODA {os.path.basename(a.video)} ({qid}): {fmt(when)}")
 
 

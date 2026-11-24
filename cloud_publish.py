@@ -66,9 +66,25 @@ def main():
             except Exception as e:
                 print("dry FAIL")
         return
-    # Repo pubblico: il cron gira ogni 5-10 minuti e pubblica cio' che e' scaduto, senza aspettare.
-    run_once()
-    commit()
+    # Repo pubblico = minuti gratis: la run aspetta il prossimo post e prima di scadere passa il testimone
+    # a una nuova run (catena). Il cron ogni 5 minuti resta come riserva.
+    started = time.time()
+    while True:
+        run_once()
+        commit()
+        nxt = next_due()
+        if nxt is None:
+            print("Coda vuota.")
+            return
+        wait = (nxt - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
+        left = 320 * 60 - (time.time() - started)
+        if wait > left:
+            time.sleep(max(left, 0))
+            subprocess.run(["gh", "workflow", "run", "publish.yml"], check=False)
+            print("Catena: nuova run lanciata.")
+            return
+        time.sleep(max(wait, 0) + 5)
+        subprocess.run(["git", "pull", "-q", "--rebase"], check=False)
 
 
 def pending():

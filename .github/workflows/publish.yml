@@ -15,10 +15,11 @@ permissions:
 concurrency:
   group: publish
   cancel-in-progress: false
+# una sola run alla volta: la catena e il cron non si accavallano
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
