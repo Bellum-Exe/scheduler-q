@@ -1,0 +1,42 @@
+name: publish-due
+on:
+  schedule:
+    # Repo pubblico = minuti illimitati. Controlla la coda ogni 5 minuti (GitHub puo' ritardare di qualche minuto).
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_test:
+        description: "Profili da testare senza pubblicare (nomi profilo)"
+        required: false
+        default: ""
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ffmpeg (solo test)
+        if: ${{ inputs.dry_test != '' && inputs.dry_test != null }}
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Publish due posts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_TEST: ${{ inputs.dry_test }}
+          QUEUE_KEY: ${{ secrets.QUEUE_KEY }}
+          P1_ACCESS_TOKEN: ${{ secrets.P1_ACCESS_TOKEN }}
+          P1_IG_USER_ID: ${{ secrets.P1_IG_USER_ID }}
+          P2_ACCESS_TOKEN: ${{ secrets.P2_ACCESS_TOKEN }}
+          P2_IG_USER_ID: ${{ secrets.P2_IG_USER_ID }}
+          P3_ACCESS_TOKEN: ${{ secrets.P3_ACCESS_TOKEN }}
+          P3_IG_USER_ID: ${{ secrets.P3_IG_USER_ID }}
+          PROFILE_ALIAS: ${{ secrets.PROFILE_ALIAS }}
+        run: python cloud_publish.py
