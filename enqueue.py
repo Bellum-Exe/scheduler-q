@@ -85,7 +85,7 @@ def main():
     git("add", "queue")
     git("commit", "-q", "-m", "enqueue")
     git("push", "-q")
-        print(f"IN CODA {os.path.basename(a.video)} ({qid}): {fmt(when)}")
+    print(f"IN CODA {os.path.basename(a.video)} ({qid}): {fmt(when)}")
 
 
 if __name__ == "__main__":
