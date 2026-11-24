@@ -1,4 +1,4 @@
-name: publish-due
+﻿name: publish-due
 on:
   schedule:
     # Repo pubblico = minuti illimitati. Controlla la coda ogni 5 minuti (GitHub puo' ritardare di qualche minuto).
@@ -39,5 +39,7 @@ jobs:
           P2_IG_USER_ID: ${{ secrets.P2_IG_USER_ID }}
           P3_ACCESS_TOKEN: ${{ secrets.P3_ACCESS_TOKEN }}
           P3_IG_USER_ID: ${{ secrets.P3_IG_USER_ID }}
+          P4_ACCESS_TOKEN: ${{ secrets.P4_ACCESS_TOKEN }}
+          P4_IG_USER_ID: ${{ secrets.P4_IG_USER_ID }}
           PROFILE_ALIAS: ${{ secrets.PROFILE_ALIAS }}
         run: python cloud_publish.py
