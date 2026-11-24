@@ -1,6 +1,7 @@
 """Uso locale (agenti): mette in coda un reel su GitHub.
   python enqueue.py <profilo> VIDEO.mp4 [--caption-file F.txt] [--at "2026-11-22 19:00"]   (orario New York)
   python enqueue.py list
+  python enqueue.py cancel VIDEO_SORGENTE.mp4 [--at PROFILO]   (annulla i post pending di quel video)
 Senza --at usa il primo slot libero dal giorno dopo (data NY): 19:00 e 21:30 America/New_York.
 Toglie i metadati, carica il video come asset della release 'queue', crea queue/<id>.json e fa push.
 Dopo il push il PC puo' restare spento: pubblica GitHub Actions.
@@ -54,6 +55,23 @@ def main():
     ap.add_argument("--at")
     a = ap.parse_args()
     git("pull", "-q", "--rebase")
+    if a.profile == "cancel":
+        # python enqueue.py cancel NOME_VIDEO_SORGENTE [--profile-name micky]
+        n = 0
+        for p in sorted(glob.glob(os.path.join(HERE, "queue", "*.json"))):
+            it = qcrypt.load(p)
+            if it["status"] == "pending" and it.get("source") == a.video and (not a.at or it["profile"] == a.at):
+                it.update(status="cancelled", error="annullato a mano")
+                qcrypt.save(p, it)
+                n += 1
+                print(f"ANNULLATO {it['source']} ({it['profile']}) {fmt(it['publish_at_utc'])}")
+        if n:
+            git("add", "queue")
+            git("commit", "-q", "-m", "queue: update")
+            git("push", "-q")
+        else:
+            print("Nessun post pending con quel nome.")
+        return
     if a.profile == "list":
         for p in sorted(glob.glob(os.path.join(HERE, "queue", "*.json"))):
             it = qcrypt.load(p)
