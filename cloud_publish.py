@@ -83,7 +83,8 @@ def main():
             subprocess.run(["gh", "workflow", "run", "publish.yml"], check=False)
             print("Catena: nuova run lanciata.")
             return
-        time.sleep(max(wait, 0) + 5)
+        # dorme al massimo 5 minuti, poi rilegge la coda: cosi' i post aggiunti nel frattempo non restano fermi
+        time.sleep(min(max(wait, 0) + 5, 300))
         subprocess.run(["git", "pull", "-q", "--rebase"], check=False)
 
 
