@@ -9,7 +9,7 @@ import qcrypt
 API = "https://graph.facebook.com/v24.0"
 MAX_LATE_H = 6
 # nome profilo -> alias dei Secrets (P1, P2...), dal Secret PROFILE_ALIAS: {"nome": "p1", ...}
-ALIAS = json.loads(os.environ.get("PROFILE_ALIAS") or "{}")  # oltre 6h di ritardo non pubblica: segna "late"
+ALIAS = json.loads((os.environ.get("PROFILE_ALIAS") or "{}").strip().lstrip("Feff"))  # oltre 6h di ritardo non pubblica: segna "late"
 
 
 def req(method, url, params=None, data=None, headers=None, timeout=120):
